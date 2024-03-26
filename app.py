@@ -1,22 +1,6 @@
-from flask import Flask, render_template
+from DMV import create_app
 
-app = Flask(__name__)
+app = create_app()
 
-@app.route('/')
-def practice():
-    return render_template("practice.html")
-
-@app.route('/index')
-def index():
-    return render_template("index.html")
-
-@app.route('/login')
-def login():
-    return render_template("login.html")
-
-@app.route('/registration')
-def registration():
-    return render_template("registration.html")
-
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__': #app will run only if we run this file, it will not run when imported
+    app.run(debug = True)
