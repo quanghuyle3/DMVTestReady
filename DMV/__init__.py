@@ -1,7 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from os import path
+import os
 from flask_login import LoginManager
+from .resources import *
 
 
 db = SQLAlchemy()
@@ -43,6 +44,13 @@ def create_app():
 
 
 def create_database(app):
-    if not path.exists('DMV/' + DB_NAME):
+    if not os.path.exists('DMV/' + DB_NAME):
         with app.app_context():
             db.create_all()
+
+__all__ = ['create_app']
+
+# # Get list of files in the resources directory
+# resource_files = os.listdir(os.path.join(os.path.dirname(__file__), 'resources'))
+# # Add CSV files to __all__
+# __all__.extend([filename[:-4] for filename in resource_files if filename.endswith('.csv')])
