@@ -1,4 +1,4 @@
-from DMV import create_app
+from DMV import *
 
 app = create_app()
 
