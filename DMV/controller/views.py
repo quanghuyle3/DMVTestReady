@@ -1,19 +1,49 @@
-from flask import Flask, render_template, Blueprint, request, redirect
+from flask import Flask, render_template, Blueprint, request, redirect, url_for
 from flask_login import  login_required, current_user
 import pandas as pd
 import os
+from ..models import Question
+from ..import db
 
 views = Blueprint("views",__name__)
 
 @views.route('/practice')
-# @login_required
+@login_required
 def practice():
     return render_template("practice.html",user = current_user)
+
+@views.route('/exam')
+@login_required
+def exam():
+    return render_template("exam.html",user = current_user)
 
 @views.route('/')
 # @login_required
 def index():
     return render_template("index.html", user = current_user)
+
+@views.route('/profile')
+@login_required
+def profile():
+    return render_template("profile.html", user = current_user)
+
+@views.route('/update_profile_page')
+@login_required
+def update_profile_page():
+    return render_template("update_profile.html", user=current_user)
+
+@views.route('/update_profile', methods=['POST'])
+@login_required
+def update_profile():
+    new_first_name = request.form.get('first_name')
+    current_user.first_name = new_first_name
+    db.session.commit()
+    return redirect(url_for('views.profile'))
+
+import json
+
+from flask import flash
+
 
 @views.route('/take-practice', methods=["POST", "GET"])
 @login_required
@@ -25,8 +55,22 @@ def takePractice():
         practiceName = request.args.get("name")
         # load questions from files and converts to objects
         questions = load_corresponding_resource(practiceName)
+        # Convert questions to a JSON format for HTML
+        questions_json = []
+        for q in questions:
+            question_dict = {
+                "id": int(q.id),
+                "question": q.question,
+                "a": q.a,
+                "b": q.b,
+                "c": q.c,
+                "d": q.d,
+                "answer": q.answer,
+                "chose": q.chose
+            }
+            questions_json.append(question_dict)
         
-        return render_template("takePractice.html", user = current_user, questions=questions, name=practiceName, points=-1)
+        return render_template("takePractice.html", user=current_user, questions=questions_json, name=practiceName, points=-1)
     # Process test submission
     else:
         # get the correct practice name 
@@ -37,13 +81,96 @@ def takePractice():
         # Count correct answers and set chosen answer for each question
         count = 0
         for i in range(len(questions)):
-            if request.form[str(i)] == questions[i].answer:
+            if request.form.get(str(i)) == questions[i].answer:
                 count += 1
+            elif request.form.get(str(i)) is None:
+                flash("You must choose an answer for question {}".format(i+1), "error")
                 
-            questions[i].chose = request.form[str(i)]   # save the answer that user chose
+            questions[i].chose = request.form.get(str(i))   # save the answer that user chose
+        
+        # Convert questions to a JSON format for HTML
+        questions_json = []
+        for q in questions:
+            question_dict = {
+                "id": int(q.id),
+                "question": q.question,
+                "a": q.a,
+                "b": q.b,
+                "c": q.c,
+                "d": q.d,
+                "answer": q.answer,
+                "chose": q.chose
+            }
+            questions_json.append(question_dict)
 
-        return render_template("takePractice.html", user = current_user, questions=questions, name=practiceName, points=count) 
+        return render_template("takePractice.html", user=current_user, questions=questions_json, name=practiceName, points=count) 
+
+
+
+
+@views.route('/take-exam', methods=["POST", "GET"])
+@login_required
+def takeExam():
     
+    # Taking exam
+    if request.method == "GET":
+        # get the correct exam name 
+        practiceName = request.args.get("name")
+        # load questions from files and converts to objects
+        questions = load_corresponding_resource(practiceName)
+        # Convert questions to a JSON format for HTML
+        questions_json = []
+        for q in questions:
+            question_dict = {
+                "id": int(q.id),
+                "question": q.question,
+                "a": q.a,
+                "b": q.b,
+                "c": q.c,
+                "d": q.d,
+                "answer": q.answer,
+                "chose": q.chose
+            }
+            questions_json.append(question_dict)
+        
+        return render_template("takeExam.html", user=current_user, questions=questions_json, name=practiceName, points=-1)
+   
+    else:
+        # get the correct practice name 
+        practiceName = request.form["name"]
+        # load questions from files and converts to objects
+        questions = load_corresponding_resource(practiceName)
+
+        # Count correct answers and set chosen answer for each question
+        count = 0
+        for i in range(len(questions)):
+            if request.form.get(str(i)) == questions[i].answer:
+                count += 1
+            elif request.form.get(str(i)) is None:
+                flash("You must choose an answer for question {}".format(i+1), "error")
+                
+            questions[i].chose = request.form.get(str(i))   # save the answer that user chose
+        
+        # Convert questions to a JSON format for HTML
+        questions_json = []
+        for q in questions:
+            question_dict = {
+                "id": int(q.id),
+                "question": q.question,
+                "a": q.a,
+                "b": q.b,
+                "c": q.c,
+                "d": q.d,
+                "answer": q.answer,
+                "chose": q.chose
+            }
+            questions_json.append(question_dict)
+
+        return render_template("takeExam.html", user=current_user, questions=questions_json, name=practiceName, points=count) 
+
+
+
+
 
 # This function will return list of questions from corresponding resource
 def load_corresponding_resource(name):
@@ -64,15 +191,4 @@ def load_corresponding_resource(name):
 
     return questions 
 
-# Model for question
-class Question:
-    def __init__(self, id, question, a, b, c, d, answer, chose=''):
-        self.id = id
-        self.question = question 
-        self.a = a
-        self.b = b 
-        self.c = c 
-        self.d = d 
-        self.answer = answer 
-        self.chose = chose
 

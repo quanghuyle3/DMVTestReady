@@ -48,6 +48,11 @@
           <ul
             class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
           >
+            {%if user.is_authenticated == False%}
+            <li>
+              <a href="/" class="nav-link px-2" style="color: #ad4420">HOME</a>
+            </li>
+            {%else%}
             <li>
               <a href="/" class="nav-link px-2" style="color: #ad4420">HOME</a>
             </li>
@@ -57,20 +62,23 @@
               >
             </li>
             <li>
-              <a href="/" class="nav-link px-2" style="color: #ad4420">EXAM</a>
+              <a href="/exam" class="nav-link px-2" style="color: #ad4420">EXAM</a>
             </li>
             <li>
               <a href="/" class="nav-link px-2" style="color: #ad4420"
                 >SCORE HISTORY</a
               >
             </li>
+            {%endif%}
           </ul>
 
           <div class="text-end">
+            {%if user.is_authenticated == False%}
             <a href="/registration" class="btn btn-primary me-2"> SIGN UP </a>
             <a href="/login" class="btn btn-success">LOGIN</a>
-            <a href="/logout" class="btn btn-danger">LOGOUT</a>
+            {%endif%}
           </div>
+          {%if user.is_authenticated%}
           <div class="dropdown text-end">
             <button
               class="btn btn-link dropdown-toggle dropdown-avatar"
@@ -89,10 +97,7 @@
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
               <li>
-                <a class="dropdown-item" href="">Profile</a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="">Update</a>
+                <a class="dropdown-item" href="/profile">Profile</a>
               </li>
               <li><hr class="dropdown-divider" /></li>
               <li>
@@ -100,6 +105,7 @@
               </li>
             </ul>
           </div>
+          {%endif%}
         </div>
       </div>
     </header>

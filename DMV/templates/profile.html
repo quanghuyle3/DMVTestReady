@@ -1,0 +1,15 @@
+{% extends 'templateMain.html' %}
+{% block title %} Update Profile {% endblock %}
+{% block body %}
+<body>
+    <p>Email: {{ user.email }}</p>
+    <p>First Name: {{ user.first_name }}</p>
+
+    <form action="/update_profile_page" method="get">
+        <button type="submit">Update</button>
+    </form>
+    <form action="/" method="get">
+        <button type="submit">Main</button>
+    </form>
+</body>
+{% endblock %}
