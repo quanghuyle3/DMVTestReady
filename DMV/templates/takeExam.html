@@ -7,7 +7,6 @@
       <form id="practiceForm" action="/take-practice" method="post">
         <h2 id="questionTitle">Practice Questions:</h2>
         <div id="questionContainer">
-  
         </div>
         
         {% if points >= 0 %}
@@ -23,24 +22,28 @@
     </div>
     <div class="col-3 bg-success">
       <div class="container position-fixed">
-
+        <h5 id="timerDisplay">Time left: 20 seconds</h5>
+        <div id="notification"></div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+  
   let currentQuestionIndex = 0;
   let questions = {{ questions | tojson }};
-  
+  let timerInterval; // timer for Counting time during exam
+  let timerSeconds = 20; // timer controller
+
   function displayQuestion() {
     if (currentQuestionIndex >= questions.length) {
-      // Next and Submit is hidden because next case is not implemented
+      // For now we just keep buttons hidden cuz we need to collect data first
       document.getElementById("nextButton").style.display = "none";
       document.getElementById("submitButton").style.display = "none";
       return;
     }
-    
+
     let question = questions[currentQuestionIndex];
     let questionHTML = `
       <p>${question.question}</p>
@@ -55,57 +58,64 @@
     `;
     document.getElementById("questionContainer").innerHTML = questionHTML;
     document.getElementById("questionTitle").innerText = `Question ${currentQuestionIndex + 1}`;
+
+    // Timer starts wroking
+    startTimer();
+
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+      radio.addEventListener('click', handleRadioButtonClick);
+    });
   }
-  
+
+  //Timer of Exam
+  function startTimer() {
+    let secondsLeft = timerSeconds;
+    timerInterval = setInterval(() => {
+      document.getElementById("timerDisplay").innerText = `Time left: ${secondsLeft} seconds`;
+      secondsLeft--;
+
+      if (secondsLeft < 0) {
+        clearInterval(timerInterval);
+        // Once time is finished move to next question
+        proceedToNextQuestion();
+        document.getElementById("notification").innerHTML = "Time has passed and you didnt choose any answer.";
+      }
+    }, 1000);
+  }
+
+  //Depending on correctness of answer it will be colored red or green
   function highlightAnswers(correctAnswer) {
     let userAnswer = document.querySelector('input[name="answer"]:checked');
     if (userAnswer) {
       userAnswer.nextElementSibling.style.backgroundColor = userAnswer.value === correctAnswer ? "green" : "red";
       document.querySelectorAll('input[name="answer"]').forEach(radio => {
         if (radio !== userAnswer) {
-          radio.disabled = true;
-          radio.nextElementSibling.style.backgroundColor = ""; // Background Color reset
+          radio.disabled = true; // Once answer is selected choices will be disabled
           if (radio.value === correctAnswer) {
-            radio.nextElementSibling.style.backgroundColor = "green";
+            radio.nextElementSibling.style.backgroundColor = "green"; // Correct answer is highligheted with green
           }
         }
       });
+      clearInterval(timerInterval); // Timer is destroyed once answer is selected
     }
   }
-  
-  window.onload = function() {
+
+  // Once time finishes move to next question
+  function proceedToNextQuestion() {
+    clearInterval(timerInterval); // Stop the timer
+    currentQuestionIndex++;
     displayQuestion();
-    
-    //Handles button clicks
-    function handleRadioButtonClick() {
-      let correctAnswer = questions[currentQuestionIndex].answer;
-      highlightAnswers(correctAnswer);
-    }
+    document.getElementById("notification").innerHTML = "";
+  }
 
-     //Listens each clicks of Radio buttons
-    document.querySelectorAll('input[type="radio"]').forEach(radio => {
-      radio.addEventListener('click', handleRadioButtonClick);
-    });
+  function handleRadioButtonClick() {
+    let correctAnswer = questions[currentQuestionIndex].answer;
+    highlightAnswers(correctAnswer);
+  }
 
-    document.getElementById("nextButton").onclick = function() {
-      // Checks if Radion button selected or not
-      let selectedAnswer = document.querySelector('input[name="answer"]:checked');
-      if (!selectedAnswer) {
-        alert("Please choose an answer before moving to the next question.");
-        return;
-      }
-      
-      let correctAnswer = questions[currentQuestionIndex].answer;
-      highlightAnswers(correctAnswer);
-      currentQuestionIndex++;
-      displayQuestion();
-
-      // Reattach event listener for new questions
-      document.querySelectorAll('input[type="radio"]').forEach(radio => {
-        radio.addEventListener('click', handleRadioButtonClick);
-      });
-    };
+  window.onload = function () {
+    displayQuestion();
+    document.getElementById("nextButton").onclick = proceedToNextQuestion;
   };
 </script>
-
 {% endblock %}
