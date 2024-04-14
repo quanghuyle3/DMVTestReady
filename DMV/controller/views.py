@@ -89,22 +89,6 @@ def takeExam():
         practiceName = request.args.get("name")
         # load questions from files and converts to objects
         questions = load_corresponding_resource(practiceName)
-        # # Convert questions to a JSON format for HTML
-        # questions_json = []
-        # for q in questions:
-        #     question_dict = {
-        #         "id": int(q.id),
-        #         "question": q.question,
-        #         "a": q.a,
-        #         "b": q.b,
-        #         "c": q.c,
-        #         "d": q.d,
-        #         "answer": q.answer,
-        #         "chose": q.chose
-        #     }
-        #     questions_json.append(question_dict)
-        
-        # return render_template("takeExam.html", user=current_user, questions=questions_json, name=practiceName, points=-1)
         return render_template("takeExam.html", user=current_user, questions=questions, name=practiceName, points=-1)
    
     else:
@@ -125,33 +109,6 @@ def takeExam():
 
         return render_template("takeExam.html", user=current_user, questions=questions, name=practiceName, points=count) 
 
-        # # Count correct answers and set chosen answer for each question
-        # count = 0
-        # for i in range(len(questions)):
-        #     if request.form.get(str(i)) == questions[i].answer:
-        #         count += 1
-        #     elif request.form.get(str(i)) is None:
-        #         flash("You must choose an answer for question {}".format(i+1), "error")
-                
-        #     questions[i].chose = request.form.get(str(i))   # save the answer that user chose
-        
-        # # Convert questions to a JSON format for HTML
-        # questions_json = []
-        # for q in questions:
-        #     question_dict = {
-        #         "id": int(q.id),
-        #         "question": q.question,
-        #         "a": q.a,
-        #         "b": q.b,
-        #         "c": q.c,
-        #         "d": q.d,
-        #         "answer": q.answer,
-        #         "chose": q.chose
-        #     }
-        #     questions_json.append(question_dict)
-
-        # return render_template("takeExam.html", user=current_user, questions=questions_json, name=practiceName, points=count) 
-
 
 @views.route('/score-history')
 @login_required
@@ -161,16 +118,6 @@ def score_history():
     exam_scores = current_user.exam_scores
      
     return render_template("scoreHistory.html", user=current_user, practice_scores=practice_scores, exam_scores=exam_scores)
-
-@views.route('/saveExamScore', methods=['POST'])
-def save_exam_score():
-    # Get the JSON data from the request body
-    score = request.json
-
-    insert_score(score, 'exam-score', 'exam')
-
-    # Return a response to the client
-    return jsonify({'message': 'Exam score saved successfully'})
 
 # This function will insert either practice or exam score
 # name: practice name OR exam name
