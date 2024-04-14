@@ -1,111 +1,67 @@
-{% extends 'templateMain.html' %} 
-{% block title %} Practice page {% endblock %}
+{% extends 'templateMain.html' %} {% block title %} Practice page {% endblock %}
 {% block body %}
 <div class="container">
   <div class="row">
     <div class="col-9">
       <form id="practiceForm" action="/take-practice" method="post">
-        <h2 id="questionTitle">Practice Questions:</h2>
-        <div id="questionContainer">
-  
-        </div>
+        <h2>Practice</h2>
         
+        {% for q in questions %}
+
+          <div class="mb-4">
+            <p>Question {{ q.id + 1}}:</p>
+            {% if q.type == 'normal' %}
+              <p>{{ q.question}}</p>
+            {% else %}
+              <img src="/static/signs/{{q.question}}.png" alt="" style="display: block; max-width: 350px;">
+            {% endif %}
+
+            <input type="radio" id="answer1_{{ q.id }}" name="{{ q.id }}" value="{{ q.a }}" {%
+            if q.chose == q.a %} checked {% endif %} {% if q.chose != '' %} disabled
+            {% endif %}/>
+            <label for="answer1_{{ q.id }}" {% if q.chose and q.a == q.answer %} class="bg-success" {% endif %} {% if q.chose == q.a and q.a != q.answer %} class="bg-danger" {% endif %}>{{ q.a }}</label><br />
+
+
+            <input type="radio" id="answer2_{{ q.id }}" name="{{ q.id }}" value="{{ q.b }}" {%
+            if q.chose == q.b %} checked {% if q.chose == q.answer %}
+            class="bg-success" {% else %} class="bg-warning" {% endif %}{% endif %}
+            {% if q.chose != '' %} disabled {% endif %}/>
+            <label for="answer2_{{ q.id }}" {% if q.chose and q.b == q.answer %} class="bg-success" {% elif q.chose == q.b and q.b != q.answer %} class="bg-danger" {% endif %}>{{ q.b }}</label><br />
+
+            <input type="radio" id="answer3_{{ q.id }}" name="{{ q.id }}" value="{{ q.c }}" {%
+            if q.chose == q.c %} checked {% if q.chose == q.answer %}
+            class="bg-success" {% else %} class="bg-warning" {% endif %}{% endif %}
+            {% if q.chose != '' %} disabled {% endif %}/>
+            <label for="answer3_{{ q.id }}" {% if q.chose and q.c == q.answer %} class="bg-success" {% elif q.chose == q.c and q.c != q.answer %} class="bg-danger" {% endif %}>{{ q.c }}</label><br />
+
+            <input type="radio" id="answer4_{{ q.id }}" name="{{ q.id }}" value="{{ q.d }}" {%
+            if q.chose == q.d %} checked {% if q.chose == q.answer %}
+            class="bg-success" {% else %} class="bg-warning" {% endif %}{% endif %}
+            {% if q.chose != '' %} disabled {% endif %}/>
+            <label for="answer4_{{ q.id }}" {% if q.chose and q.d == q.answer %} class="bg-success" {% elif q.chose == q.d and q.d != q.answer %} class="bg-danger" {% endif %}>{{ q.d }}</label><br />
+          </div>
+
+        {% endfor %}
+
         {% if points >= 0 %}
         <h2>You chose correctly {{ points }} answers!</h2>
-        <a href="/take-practice?name={{ name }}">Retake this practice exam.</a> <br>
+        <a href="/take-practice?name={{ name }}">Retake this practice exam.</a>
+        <br />
         <a href="/practice">Practice a different one.</a>
         {% else %}
-        <input type="hidden" name="name" value="{{ name }}">
-        <button type="button" id="nextButton">Next</button>
-        <input type="submit" id="submitButton" value="Submit" style="display:none;" />
+        <input type="hidden" name="name" value="{{ name }}" />
+        <input
+          type="submit"
+          id="submitButton"
+          value="Submit"
+        />
         {% endif %}
       </form>
     </div>
     <div class="col-3 bg-success">
-      <div class="container position-fixed">
-
-      </div>
+      <div class="container position-fixed"></div>
     </div>
   </div>
 </div>
-
-<script>
-  let currentQuestionIndex = 0;
-  let questions = {{ questions | tojson }};
-  
-  function displayQuestion() {
-    if (currentQuestionIndex >= questions.length) {
-      // Next and Submit is hidden because next case is not implemented
-      document.getElementById("nextButton").style.display = "none";
-      document.getElementById("submitButton").style.display = "none";
-      return;
-    }
-    
-    let question = questions[currentQuestionIndex];
-    let questionHTML = `
-      <p>${question.question}</p>
-      <input type="radio" id="answer1" name="answer" value="${question.a}" />
-      <label for="answer1">${question.a}</label><br />
-      <input type="radio" id="answer2" name="answer" value="${question.b}" />
-      <label for="answer2">${question.b}</label><br />
-      <input type="radio" id="answer3" name="answer" value="${question.c}" />
-      <label for="answer3">${question.c}</label><br />
-      <input type="radio" id="answer4" name="answer" value="${question.d}" />
-      <label for="answer4">${question.d}</label><br />
-    `;
-    document.getElementById("questionContainer").innerHTML = questionHTML;
-    document.getElementById("questionTitle").innerText = `Question ${currentQuestionIndex + 1}`;
-  }
-  
-  function highlightAnswers(correctAnswer) {
-    let userAnswer = document.querySelector('input[name="answer"]:checked');
-    if (userAnswer) {
-      userAnswer.nextElementSibling.style.backgroundColor = userAnswer.value === correctAnswer ? "green" : "red";
-      document.querySelectorAll('input[name="answer"]').forEach(radio => {
-        if (radio !== userAnswer) {
-          radio.disabled = true;
-          radio.nextElementSibling.style.backgroundColor = ""; // Background Color reset
-          if (radio.value === correctAnswer) {
-            radio.nextElementSibling.style.backgroundColor = "green";
-          }
-        }
-      });
-    }
-  }
-  
-  window.onload = function() {
-    displayQuestion();
-    
-    //Handles button clicks
-    function handleRadioButtonClick() {
-      let correctAnswer = questions[currentQuestionIndex].answer;
-      highlightAnswers(correctAnswer);
-    }
-
-     //Listens each clicks of Radio buttons
-    document.querySelectorAll('input[type="radio"]').forEach(radio => {
-      radio.addEventListener('click', handleRadioButtonClick);
-    });
-
-    document.getElementById("nextButton").onclick = function() {
-      // Checks if Radion button selected or not
-      let selectedAnswer = document.querySelector('input[name="answer"]:checked');
-      if (!selectedAnswer) {
-        alert("Please choose an answer before moving to the next question.");
-        return;
-      }
-      
-      let correctAnswer = questions[currentQuestionIndex].answer;
-      highlightAnswers(correctAnswer);
-      currentQuestionIndex++;
-      displayQuestion();
-
-      // Reattach event listener for new questions
-      document.querySelectorAll('input[type="radio"]').forEach(radio => {
-        radio.addEventListener('click', handleRadioButtonClick);
-      });
-    };
-  };
-</script>
 
 {% endblock %}

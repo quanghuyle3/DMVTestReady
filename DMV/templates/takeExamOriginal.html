@@ -1,0 +1,182 @@
+{% extends 'templateMain.html' %} {% block title %} Practice page {% endblock %}
+{% block body %}
+<div class="container">
+  <div class="row">
+    <div class="col-9">
+      <form id="practiceForm" action="/take-practice" method="post">
+        <h2 id="questionTitle">Practice Questions:</h2>
+        <div id="questionContainer"></div>
+
+        {% if points >= 0 %}
+        <h2>You chose correctly {{ points }} answers!</h2>
+        <a href="/take-practice?name={{ name }}">Retake this practice exam.</a>
+        <br />
+        <a href="/practice">Practice a different one.</a>
+        {% else %}
+        <input type="hidden" name="name" value="{{ name }}" />
+        <button type="button" id="skipButton">Skip</button>
+        <button type="button" id="nextButton">Next</button>
+        <input
+          type="submit"
+          id="submitButton"
+          value="Submit"
+          style="display: none"
+        />
+        {% endif %}
+      </form>
+    </div>
+    <div class="col-3 bg-success">
+      <div class="container position-fixed">
+        <h5 id="timerDisplay">Time left: 20 seconds</h5>
+        <div id="notification"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  let currentQuestionIndex = 0;
+  let questions = {{ questions | tojson }};
+  console.log(questions);
+  let timerInterval; // timer for Counting time during exam
+  let timerSeconds = 20; // timer controller
+
+  let correct_answers = 0;
+  let skip_count = 3;
+
+  function displayQuestion() {
+    if (currentQuestionIndex >= questions.length) {
+      // For now we just keep buttons hidden cuz we need to collect data first
+      document.getElementById("questionContainer").innerHTML = "You chose " + correct_answers + " correct answers.";
+      document.getElementById("nextButton").style.display = "none";
+      document.getElementById("submitButton").style.display = "none";
+      // document.getElementById("notification").innerHTML = "You chose " + correct_answers + " correct answers.";
+
+      // call function to send score to backend and save to db
+      sendExamScoreToController(correct_answers);
+
+      // present all questions and answers to review one more time
+      presentAll();
+
+      return;
+    }
+
+    let question = questions[currentQuestionIndex];
+    let questionHTML = `
+      <p>${question.question}</p>
+      <input type="radio" id="answer1" name="answer" value="${question.a}" />
+      <label for="answer1">${question.a}</label><br />
+      <input type="radio" id="answer2" name="answer" value="${question.b}" />
+      <label for="answer2">${question.b}</label><br />
+      <input type="radio" id="answer3" name="answer" value="${question.c}" />
+      <label for="answer3">${question.c}</label><br />
+      <input type="radio" id="answer4" name="answer" value="${question.d}" />
+      <label for="answer4">${question.d}</label><br />
+    `;
+    document.getElementById("questionContainer").innerHTML = questionHTML;
+    document.getElementById("questionTitle").innerText = `Question ${currentQuestionIndex + 1}`;
+
+    // Timer starts wroking
+    startTimer();
+
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+      radio.addEventListener('click', handleRadioButtonClick);
+    });
+  }
+
+  //Timer of Exam
+  function startTimer() {
+    let secondsLeft = timerSeconds;
+    timerInterval = setInterval(() => {
+      document.getElementById("timerDisplay").innerText = `Time left: ${secondsLeft} seconds`;
+      secondsLeft--;
+
+      if (secondsLeft < 0) {
+        clearInterval(timerInterval);
+        // Once time is finished move to next question
+        proceedToNextQuestion();
+        document.getElementById("notification").innerHTML = "Time has passed and you didnt choose any answer.";
+      }
+    }, 1000);
+  }
+
+  //Depending on correctness of answer it will be colored red or green
+  function highlightAnswers(correctAnswer) {
+    let userAnswer = document.querySelector('input[name="answer"]:checked');
+    if (userAnswer) {
+      if (userAnswer.value === correctAnswer) {
+        userAnswer.nextElementSibling.style.backgroundColor = "green";
+
+        // increase counter
+        correct_answers  = correct_answers + 1;
+      }
+      else {
+        userAnswer.nextElementSibling.style.backgroundColor = "red";
+      }
+      // userAnswer.nextElementSibling.style.backgroundColor = userAnswer.value === correctAnswer ? "green" : "red";
+      document.querySelectorAll('input[name="answer"]').forEach(radio => {
+        if (radio !== userAnswer) {
+          radio.disabled = true; // Once answer is selected choices will be disabled
+          if (radio.value === correctAnswer) {
+            radio.nextElementSibling.style.backgroundColor = "green"; // Correct answer is highligheted with green
+          }
+        }
+      });
+      clearInterval(timerInterval); // Timer is destroyed once answer is selected
+    }
+  }
+
+  // Once time finishes move to next question
+  function proceedToNextQuestion() {
+    clearInterval(timerInterval); // Stop the timer
+    currentQuestionIndex++;
+    displayQuestion();
+    document.getElementById("notification").innerHTML = "";
+  }
+
+  function handleRadioButtonClick() {
+    let correctAnswer = questions[currentQuestionIndex].answer;
+    highlightAnswers(correctAnswer);
+  }
+
+  // Function to send data back to the controller
+  function sendExamScoreToController(score) {
+    fetch('/saveExamScore', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(score),
+    })
+    .then(response => response.json())
+    .then(result => {
+      // Handle response from the server if needed
+      // Display the response from the server
+      console.log('Server response:', result);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+
+  // Present all questions and answers user chose
+  function presentAll() {
+    // Get the original HTML element
+    var original = document.getElementById('questionContainer');
+    original.innerHTML = "Original here"
+
+    // Clone the original element
+    var clone = original.cloneNode(true);
+    clone.innerHTML = "Clone here"
+
+    // Append the clone to the document body (or any other desired location)
+    document.body.appendChild(clone);
+  }
+
+  window.onload = function () {
+    displayQuestion();
+    document.getElementById("nextButton").onclick = proceedToNextQuestion;
+  };
+</script>
+{% endblock %}

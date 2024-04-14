@@ -1,121 +1,149 @@
-{% extends 'templateMain.html' %} 
-{% block title %} Practice page {% endblock %}
+{% extends 'templateMain.html' %} {% block title %} Exam page {% endblock %}
 {% block body %}
 <div class="container">
   <div class="row">
     <div class="col-9">
-      <form id="practiceForm" action="/take-practice" method="post">
-        <h2 id="questionTitle">Practice Questions:</h2>
-        <div id="questionContainer">
+      <form id="examForm" action="/take-exam" method="post">
+        <h2>Exam</h2>
+        <p>Note: You have 3 skips for this exam. For each question, you need to either submit your answer or skip in order to go to the next question. Good luck!</p>
+        
+        {% for q in questions %}
+        <div id="{{ q.id }}" class="mb-4">
+          <p>Question {{ q.id + 1}}: {{ q.question}}</p>
+
+          <input type="radio" id="answer1_{{ q.id }}" name="{{ q.id }}" value="{{ q.a }}" onclick="enableSubmit({{q.id}})" {%
+          if q.chose == q.a %} checked {% endif %} {% if q.chose != '' %} disabled
+          {% endif %}/>
+          <label for="answer1_{{ q.id }}" {% if q.chose and q.a == q.answer %} class="bg-success" {% endif %} {% if q.chose == q.a and q.a != q.answer %} class="bg-danger" {% endif %}>{{ q.a }}</label><br />
+
+
+          <input type="radio" id="answer2_{{ q.id }}" name="{{ q.id }}" value="{{ q.b }}" onclick="enableSubmit({{q.id}})" {%
+          if q.chose == q.b %} checked {% if q.chose == q.answer %}
+          class="bg-success" {% else %} class="bg-warning" {% endif %}{% endif %}
+          {% if q.chose != '' %} disabled {% endif %}/>
+          <label for="answer2_{{ q.id }}" {% if q.chose and q.b == q.answer %} class="bg-success" {% elif q.chose == q.b and q.b != q.answer %} class="bg-danger" {% endif %}>{{ q.b }}</label><br />
+
+          <input type="radio" id="answer3_{{ q.id }}" name="{{ q.id }}" value="{{ q.c }}" onclick="enableSubmit({{q.id}})" {%
+          if q.chose == q.c %} checked {% if q.chose == q.answer %}
+          class="bg-success" {% else %} class="bg-warning" {% endif %}{% endif %}
+          {% if q.chose != '' %} disabled {% endif %}/>
+          <label for="answer3_{{ q.id }}" {% if q.chose and q.c == q.answer %} class="bg-success" {% elif q.chose == q.c and q.c != q.answer %} class="bg-danger" {% endif %}>{{ q.c }}</label><br />
+
+          <input type="radio" id="answer4_{{ q.id }}" name="{{ q.id }}" value="{{ q.d }}" onclick="enableSubmit({{q.id}})" {%
+          if q.chose == q.d %} checked {% if q.chose == q.answer %}
+          class="bg-success" {% else %} class="bg-warning" {% endif %}{% endif %}
+          {% if q.chose != '' %} disabled {% endif %}/>
+          <label for="answer4_{{ q.id }}" {% if q.chose and q.d == q.answer %} class="bg-success" {% elif q.chose == q.d and q.d != q.answer %} class="bg-danger" {% endif %}>{{ q.d }}</label><br />
+
+          {% if points < 0 %}
+          <button type="button" id="submitButton_{{ q.id }}" onclick="nextQuestion()" disabled>Submit</button>
+          {% endif %}
         </div>
         
+        {% endfor %}
+
         {% if points >= 0 %}
         <h2>You chose correctly {{ points }} answers!</h2>
-        <a href="/take-practice?name={{ name }}">Retake this practice exam.</a> <br>
-        <a href="/practice">Practice a different one.</a>
+        <a href="/take-exam?name={{ name }}">Retake this practice exam.</a>
+        <br />
+        <a href="/exam">Practice a different one.</a>
         {% else %}
-        <input type="hidden" name="name" value="{{ name }}">
-        <button type="button" id="nextButton">Next</button>
-        <input type="submit" id="submitButton" value="Submit" style="display:none;" />
+        <input type="hidden" name="name" value="{{ name }}" />
+        <button type="button" id="skipButton" onclick="nextQuestion('skip')">Skip</button>
         {% endif %}
       </form>
     </div>
     <div class="col-3 bg-success">
-      <div class="container position-fixed">
-        <h5 id="timerDisplay">Time left: 20 seconds</h5>
-        <div id="notification"></div>
-      </div>
+      <div class="container position-fixed"></div>
     </div>
   </div>
 </div>
 
 <script>
-  
-  let currentQuestionIndex = 0;
-  let questions = {{ questions | tojson }};
-  let timerInterval; // timer for Counting time during exam
-  let timerSeconds = 20; // timer controller
+    let cur_index = 0;
+    let points = {{ points }};
+    let num_questions = {{ questions | length }};
+    let skip_count = 0;
 
-  function displayQuestion() {
-    if (currentQuestionIndex >= questions.length) {
-      // For now we just keep buttons hidden cuz we need to collect data first
-      document.getElementById("nextButton").style.display = "none";
-      document.getElementById("submitButton").style.display = "none";
-      return;
+    let skip_question_indexes = []
+
+    console.log(points);
+
+    // User starts taking exam
+    // Hide all questions except the first one
+    if (points < 0) {
+        for (var i = 1; i < 20; i++) {
+            
+            var element = document.getElementById(i);
+            if (element) {
+                element.style.display = "none";
+            }
+        } 
     }
 
-    let question = questions[currentQuestionIndex];
-    let questionHTML = `
-      <p>${question.question}</p>
-      <input type="radio" id="answer1" name="answer" value="${question.a}" />
-      <label for="answer1">${question.a}</label><br />
-      <input type="radio" id="answer2" name="answer" value="${question.b}" />
-      <label for="answer2">${question.b}</label><br />
-      <input type="radio" id="answer3" name="answer" value="${question.c}" />
-      <label for="answer3">${question.c}</label><br />
-      <input type="radio" id="answer4" name="answer" value="${question.d}" />
-      <label for="answer4">${question.d}</label><br />
-    `;
-    document.getElementById("questionContainer").innerHTML = questionHTML;
-    document.getElementById("questionTitle").innerText = `Question ${currentQuestionIndex + 1}`;
+    // User click next button, hidden current question, display next question
+    function nextQuestion(type = "next") {
 
-    // Timer starts wroking
-    startTimer();
+        // getting to the next question from the skip list
+        if (cur_index >= num_questions - 1) {
 
-    document.querySelectorAll('input[type="radio"]').forEach(radio => {
-      radio.addEventListener('click', handleRadioButtonClick);
-    });
-  }
-
-  //Timer of Exam
-  function startTimer() {
-    let secondsLeft = timerSeconds;
-    timerInterval = setInterval(() => {
-      document.getElementById("timerDisplay").innerText = `Time left: ${secondsLeft} seconds`;
-      secondsLeft--;
-
-      if (secondsLeft < 0) {
-        clearInterval(timerInterval);
-        // Once time is finished move to next question
-        proceedToNextQuestion();
-        document.getElementById("notification").innerHTML = "Time has passed and you didnt choose any answer.";
-      }
-    }, 1000);
-  }
-
-  //Depending on correctness of answer it will be colored red or green
-  function highlightAnswers(correctAnswer) {
-    let userAnswer = document.querySelector('input[name="answer"]:checked');
-    if (userAnswer) {
-      userAnswer.nextElementSibling.style.backgroundColor = userAnswer.value === correctAnswer ? "green" : "red";
-      document.querySelectorAll('input[name="answer"]').forEach(radio => {
-        if (radio !== userAnswer) {
-          radio.disabled = true; // Once answer is selected choices will be disabled
-          if (radio.value === correctAnswer) {
-            radio.nextElementSibling.style.backgroundColor = "green"; // Correct answer is highligheted with green
-          }
+            // user didn't skip any question
+            if (skip_question_indexes.length == 0) {
+                document.getElementById("examForm").submit();
+            }
+            
+            // user still have skipped questions
+            document.getElementById("skipButton").disabled = true;
+            nextSkipQuestion();
+            return 
         }
-      });
-      clearInterval(timerInterval); // Timer is destroyed once answer is selected
+
+        // save all question indexes that user skips
+        if (type == "skip") {
+            skip_question_indexes.push(cur_index);
+            skip_count++;
+            if (skip_count == 3) {
+                document.getElementById("skipButton").disabled = true;
+            }
+
+        }
+
+        var cur_element = document.getElementById(cur_index);
+        if (cur_element) {
+            cur_element.style.display = "none";
+        }
+
+        cur_index++;
+
+        var next_element = document.getElementById(cur_index);
+        if (next_element) {
+            next_element.style.display = "block";
+        }
+
     }
-  }
 
-  // Once time finishes move to next question
-  function proceedToNextQuestion() {
-    clearInterval(timerInterval); // Stop the timer
-    currentQuestionIndex++;
-    displayQuestion();
-    document.getElementById("notification").innerHTML = "";
-  }
+    function nextSkipQuestion() {
 
-  function handleRadioButtonClick() {
-    let correctAnswer = questions[currentQuestionIndex].answer;
-    highlightAnswers(correctAnswer);
-  }
+        if (cur_index >= 500) {
+            cur_index -= 500;
+        }
+        console.log("Hide question index: " + cur_index);
+        document.getElementById(cur_index).style.display = "none";
 
-  window.onload = function () {
-    displayQuestion();
-    document.getElementById("nextButton").onclick = proceedToNextQuestion;
-  };
+        // get the first skipped question index in the list 
+        cur_index = skip_question_indexes.shift();
+
+        // document.getElementById(cur_index).style.display = "none";
+        document.getElementById(cur_index).style.display = "block";
+
+        cur_index = 500 + cur_index;
+    }
+
+    function enableSubmit(question_index) {
+        let id = "submitButton_" + question_index;
+        document.getElementById(id).disabled = false;
+    }
+
 </script>
+
 {% endblock %}

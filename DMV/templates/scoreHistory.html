@@ -1,0 +1,48 @@
+{% extends 'templateMain.html' %} {% block title %} Score History {% endblock %}
+{% block body %}
+<div class="container">
+  <h1>Your score history</h1>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Practice Name</th>
+        <th>Score</th>
+        <th>Date</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for prac_score in practice_scores %}
+      <tr>
+        <td>{{ prac_score.practice_name }}</td>
+        <td>{{ prac_score.score }}</td>
+        <td>{{ prac_score.timestamp.strftime('%Y-%m-%d') }}</td>
+        <td>{{ prac_score.timestamp.strftime('%H:%M:%S') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Exam Name</th>
+        <th>Score</th>
+        <th>Date</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for exam_score in exam_scores %}
+      <tr>
+        <td>{{ exam_score.exam_name }}</td>
+        <td>{{ exam_score.score }}</td>
+        <td>{{ exam_score.timestamp.strftime('%Y-%m-%d') }}</td>
+        <td>{{ exam_score.timestamp.strftime('%H:%M:%S') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
