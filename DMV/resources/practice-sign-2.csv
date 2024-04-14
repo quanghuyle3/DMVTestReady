@@ -1,0 +1,11 @@
+﻿id,type,question,a,b,c,d,answer,chose
+0,image,203,One-way road,"Construction zone, road closed ahead",Winding road,Stay in current lane,One-way road,
+1,image,402,T-intersection,Added lane from the right,Two way traffic,Divided highway,Divided highway,
+2,image,102,No U-Turn,Turn right at limit 25mph,No Left Turn,"Work zone, prepare to stop ",No Left Turn,
+3,image,407,Yield ahead,Right curve at limit 35mph,Keep in the right lane,Two way traffic,Right curve at limit 35mph,
+4,image,302,"Construction zone, road closed ahead",No U-Turn,No Parking,One-way road,"Construction zone, road closed ahead",
+5,image,103,Winding road,Do Not Enter,Stay in current lane,No U-Turn,Do Not Enter,
+6,image,204,"Stay in current lane, no paasing area",No Left Turn,Yield ahead,Turn left if you are in the left lane,Turn left if you are in the left lane,
+7,image,419,Added lane from the right,Two way traffic,Directional arrow,T-intersection,Added lane from the right,
+8,image,421,Keep in the right lane,No U-Turn,"Slow down, dip area",Turn right at limit 25mph,"Slow down, dip area",
+9,image,424,Pedestrians crossing,"Work zone, prepare to stop ",Do Not Enter,One-way road,Pedestrians crossing,
