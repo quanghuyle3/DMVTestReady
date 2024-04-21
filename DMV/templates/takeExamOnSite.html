@@ -1,0 +1,232 @@
+{% extends 'templateMain.html' %} {% block title %} Exam page {% endblock %}
+{% block body %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-9">
+      <form id="examForm" action="/take-exam-on-site" method="post">
+        <div class="row mt-2">
+            <div class="col-auto">
+                <h2 class="mb-0">Exam</h2>
+            </div>
+            <div class="col">
+                <h5 class="text-end mb-0 pt-2">Time Remaining: <span id="timer"></span>s</h5>
+            </div>
+        </div>
+        <hr>
+        <!-- Display result  -->
+        {% if points >= 0 %}
+        <h4>Result: </h4>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Correct Answers</th>
+              <th scope="col">Incorrect Answers</th>
+              <th scope="col">Score</th>
+              <th scope="col">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{points}}</td>
+              <td>{{(questions|length - points)}}</td>
+              <td>{{points}} out of {{questions|length}}</td>
+              <th>{% if (points / questions|length) * 100 >= 82 %} Pass {% else %} Fail {% endif %}</th>
+            </tr>
+          </tbody>
+        </table>
+        <a href="/take-exam-on-site?name=practice-1">Retake the exam</a> <br>
+        <hr>
+        {% else %}
+        <p>Note: You have only 3 skips for this exam. Good luck!</p>
+        {% endif %}
+        
+        <div class="container">
+            <div class="row justify-content-start">
+                {% for q in questions %}
+                
+                <div id="{{ q.id }}" class="col-9 mb-4 border border-1 rounded">
+            
+                    <h6 class="my-2">Question {{ q.id + 1}}:</h6>
+                    {% if q.type == 'normal' %}
+                        <h5>{{ q.question}}</h5>
+                    {% else %}
+                    <div class="d-flex justify-content-center">
+                        <img src="/static/signs/{{q.question}}.png" alt="" style="display: block; max-width: 350px;">
+                    </div>
+                    {% endif %}
+                
+                  <div {% if q.chose and q.a == q.answer %} class="border border-2 border-success rounded my-1" {% elif q.chose == q.a and q.a != q.answer %} class="border border-2 border-danger rounded my-1" {% endif %}>
+                    <input type="radio" id="answer1_{{ q.id }}" name="{{ q.id }}" value="{{ q.a }}" onclick="enableSubmit({{q.id}})" {% if q.chose == q.a %} checked {% endif %} {% if q.chose != '' %} disabled {% endif %}/>
+                    <label for="answer1_{{ q.id }}" >{{ q.a }}</label><br />
+                  </div>
+                  
+        
+                  <div {% if q.chose and q.b == q.answer %} class="border border-2 border-success rounded my-1" {% elif q.chose == q.b and q.b != q.answer %} class="border border-2 border-danger rounded my-1" {% endif %}>
+                    <input type="radio" id="answer2_{{ q.id }}" name="{{ q.id }}" value="{{ q.b }}" onclick="enableSubmit({{q.id}})" {% if q.chose == q.b %} checked {% endif %} {% if q.chose != '' %} disabled {% endif %}/>
+                    <label for="answer2_{{ q.id }}" >{{ q.b }}</label><br />
+                  </div>
+                  
+                  <div {% if q.chose and q.c == q.answer %} class="border border-2 border-success rounded my-1" {% elif q.chose == q.c and q.c != q.answer %} class="border border-2 border-danger rounded my-1" {% endif %}>
+                    <input type="radio" id="answer3_{{ q.id }}" name="{{ q.id }}" value="{{ q.c }}" onclick="enableSubmit({{q.id}})" {% if q.chose == q.c %} checked {% endif %} {% if q.chose != '' %} disabled {% endif %}/>
+                    <label for="answer3_{{ q.id }}" >{{ q.c }}</label><br />
+                  </div>
+                  
+                  <div {% if q.chose and q.d == q.answer %} class="border border-2 border-success rounded my-1" {% elif q.chose == q.d and q.d != q.answer %} class="border border-2 border-danger rounded my-1" {% endif %}>
+                    <input type="radio" id="answer4_{{ q.id }}" name="{{ q.id }}" value="{{ q.d }}" onclick="enableSubmit({{q.id}})" {% if q.chose == q.d %} checked {% endif %} {% if q.chose != '' %} disabled {% endif %}/>
+                    <label for="answer4_{{ q.id }}" >{{ q.d }}</label><br />
+                  </div>
+                  
+        
+                  {% if points < 0 %}
+                  <button type="button" id="submitButton_{{ q.id }}" class="btn btn-primary mb-2" onclick="nextQuestion()" disabled>Submit</button>
+                  {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        
+        {% if points >= 0 %}
+
+        {% else %}
+        <input type="hidden" name="name" value="{{ name }}" />
+        <button type="button" id="skipButton" class="btn btn-success" onclick="nextQuestion('skip')">Skip</button>
+        <span>Available skips: <span id="skip_count">3</span>/3</span>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+    let cur_index = 0;
+    let points = {{ points }};
+    let num_questions = {{ questions | length }};
+    let skip_count = 3;
+
+    let timerInterval;
+    let timerMinutes = 90; // initial timer value in minutes
+    let timerSeconds = 0; // initial timer value in seconds
+    let timerElement = document.getElementById('timer');
+
+    let skip_question_indexes = []
+
+    // console.log(points);
+
+    // User starts taking exam
+
+    // Hide all questions except the first one
+    if (points < 0) {
+        for (var i = 1; i < num_questions; i++) {
+            
+            var element = document.getElementById(i);
+            if (element) {
+                element.style.display = "none";
+            }
+        }
+    }
+
+
+    // Function to submit the form
+    function submitForm() {
+        document.getElementById("examForm").submit();
+    }
+
+    // User click next button, hidden current question, display next question
+    function nextQuestion(type = "next") {
+
+        // getting to the next question from the skip list
+        if (cur_index >= num_questions - 1) {
+
+            // user didn't skip any question
+            if (skip_question_indexes.length == 0) {
+                document.getElementById("examForm").submit();
+            }
+            
+            // user still have skipped questions
+            document.getElementById("skipButton").disabled = true;
+            nextSkipQuestion();
+            return 
+        }
+
+        // save all question indexes that user skips
+        if (type == "skip") {
+            skip_question_indexes.push(cur_index);
+            skip_count--;
+            document.getElementById("skip_count").innerText = skip_count;
+            if (skip_count == 0) {
+                document.getElementById("skipButton").disabled = true;
+            }
+
+        }
+
+        var cur_element = document.getElementById(cur_index);
+        if (cur_element) {
+            cur_element.style.display = "none";
+        }
+
+        cur_index++;
+
+        var next_element = document.getElementById(cur_index);
+        if (next_element) {
+            next_element.style.display = "block";
+        }
+
+    }
+
+    function nextSkipQuestion() {
+
+        if (cur_index >= 500) {
+            cur_index -= 500;
+        }
+        console.log("Hide question index: " + cur_index);
+        document.getElementById(cur_index).style.display = "none";
+
+        // get the first skipped question index in the list 
+        cur_index = skip_question_indexes.shift();
+
+        // document.getElementById(cur_index).style.display = "none";
+        document.getElementById(cur_index).style.display = "block";
+
+        cur_index = 500 + cur_index;
+    }
+
+    function enableSubmit(question_index) {
+        let id = "submitButton_" + question_index;
+        document.getElementById(id).disabled = false;
+    }
+
+    // Function to update the timer display
+    function updateTimer() {
+        let minutes = timerMinutes < 10 ? '0' + timerMinutes : timerMinutes;
+        let seconds = timerSeconds < 10 ? '0' + timerSeconds : timerSeconds;
+        timerElement.textContent = minutes + ':' + seconds;
+    }
+
+    // Update the timer display initially
+    updateTimer();
+
+    // Function to decrement timer and update display
+    function decrementTimer() {
+        if (timerSeconds === 0 && timerMinutes === 0) {
+            if (points < 0) {
+                clearInterval(timerInterval); // to stop the timer
+                submitForm(); // Submit form when timer runs out
+            }
+        } else if (timerSeconds === 0) {
+            timerSeconds = 59;
+            timerMinutes--;
+        } else {
+            timerSeconds--;
+        }
+        updateTimer();
+    }
+
+    // Set timer to decrement every second
+    if (points < 0) {
+        timerInterval = setInterval(decrementTimer, 1000);
+    }
+    
+</script>
+
+{% endblock %}
