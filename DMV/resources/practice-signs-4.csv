@@ -1,0 +1,11 @@
+﻿id,type,question,a,b,c,d,answer,chose
+0,image,206,One-way road,T-intersection,Do Not Enter,Two way traffic,One-way road,
+1,image,301,Turn left if you are in the left lane,Winding road,"Work zone, prepare to stop ",Added lane from the right,"Work zone, prepare to stop ",
+2,image,422,Slipper when wet,"Construction zone, road closed ahead",No Parking,No Left Turn,Slipper when wet,
+3,image,202,Two way traffic,Keep in the right lane,Turn left if you are in the left lane,Stay in current lane,Keep in the right lane,
+4,image,420,No Left Turn,Turn right at limit 25mph,Keep in the right lane,Two way traffic,Two way traffic,
+5,image,410,Two way traffic,Directional arrow,T-intersection,No U-Turn,T-intersection,
+6,image,408,Added lane from the right,Winding road,Two way traffic,"Construction zone, road closed ahead",Winding road,
+7,image,105,One-way road,Added lane from the right,Wrong Way,Keep in the right lane,Wrong Way,
+8,image,414,Stay in current lane,Directional arrow,Turn right at limit 25mph,Yield ahead,Yield ahead,
+9,image,101,Two way traffic,Turn left if you are in the left lane,No Left Turn,No U-Turn,No U-Turn,

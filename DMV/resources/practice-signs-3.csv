@@ -1,0 +1,11 @@
+﻿id,type,question,a,b,c,d,answer,chose
+0,image,403,T-intersection,Turn left ahead,"Construction zone, road closed ahead",Two way traffic,Turn left ahead,
+1,image,104,No Parking,No Left Turn,"Stay in current lane, no paasing area",Turn left if you are in the left lane,No Parking,
+2,image,409,No U-Turn,Keep in the right lane,Winding road,Crossroad,Crossroad,
+3,image,205,Added lane from the right,Stay in current lane,Keep going straight,No U-Turn,Keep going straight,
+4,image,207,Winding road,Two way traffic,Yield ahead,Turn left only,Turn left only,
+5,image,106,No U-Turn,Stop Sign,One-way road,No Parking,Stop Sign,
+6,image,416,Traffic signal ahead,Do Not Enter,Turn left if you are in the left lane,T-intersection,Traffic signal ahead,
+7,image,203,One-way road,"Construction zone, road closed ahead",Stay in current lane,"Work zone, prepare to stop ",One-way road,
+8,image,418,"Lane ends, merge left",Two way traffic,One-way road,Added lane from the right,"Lane ends, merge left",
+9,image,303,Turn left if you are in the left lane,Yield ahead,Shoulder is not available ahead,No Left Turn,Shoulder is not available ahead,
