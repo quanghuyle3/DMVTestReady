@@ -1,0 +1,11 @@
+﻿id,type,question,a,b,c,d,answer,chose
+0,image,101,One-way road,No U-Turn,Pedestrians crossing,"Lane ends, merge left",No U-Turn,
+1,image,401,"Slow down, dip area",Two way traffic,"Land ends, merge left",No Parking,"Land ends, merge left",
+2,image,301,Wrong Way,Traffic signal ahead,Winding road,"Work zone, prepare to stop ","Work zone, prepare to stop ",
+3,image,405,Yield ahead,Turn right at limit 25mph,Turn left if you are in the left lane,"Stay in current lane, no paasing area",Turn right at limit 25mph,
+4,image,201,Slipper when wet,Turn left if you are in the left lane,Stay in current lane,Divided highway,Stay in current lane,
+5,image,411,Pedestrians crossing,Stop Sign,Merging traffic from the right,T-intersection,T-intersection,
+6,image,202,Keep in the right lane,Shoulder is not available ahead,Right curve at limit 35mph,Wrong Way,Keep in the right lane,
+7,image,413,Yield ahead,Stop ahead,Turn left ahead,T-intersection,Stop ahead,
+8,image,106,Stop Sign,Merging traffic from the right,Stay in current lane,Do Not Enter,Stop Sign,
+9,image,423,No Left Turn,Directional arrow,Rail-road crossing,Turn left if you are in the left lane,Rail-road crossing,

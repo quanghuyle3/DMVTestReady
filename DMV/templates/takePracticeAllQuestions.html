@@ -1,0 +1,107 @@
+{% extends 'templateMain.html' %} {% block title %} Practice page {% endblock %}
+{% block body %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-9">
+      <form id="practiceForm" action="/take-practice-all-questions" method="post">
+        <h2 class="mt-2">Practice</h2>
+        <hr>
+
+        <!-- Display result  -->
+        {% if points >= 0 %}
+        <h4>Result: </h4>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Correct Answers</th>
+              <th scope="col">Incorrect Answers</th>
+              <th scope="col">Score</th>
+              <th scope="col">Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{points}}</td>
+              <td>{{(questions|length - points)}}</td>
+              <td>{{points}} out of {{questions|length}}</td>
+              <td>{{(points / questions|length) * 100}}%</td>
+            </tr>
+          </tbody>
+        </table>
+        <a href="/take-practice-all-questions?name={{ name }}">Retake this practice exam</a> <br>
+        <a href="/practice">Practice a different one</a>
+        <hr>
+        {% endif %}
+        
+        
+
+        <div class="container">
+          <div class="row justify-content-start">
+            {% for q in questions %}
+            <div class="col-9 mb-4 border border-1 rounded">
+              <h6 class="my-2">Question {{ q.id + 1}}:</h6>
+              {% if q.type == 'normal' %}
+                <h5>{{ q.question}}</h5>
+              {% else %}
+              <div class="d-flex justify-content-center">
+                <img src="/static/signs/{{q.question}}.png" alt="" style="display: block; max-width: 350px;">
+              </div>
+              {% endif %}
+  
+              <div {% if q.chose and q.a == q.answer %} class="border border-2 border-success rounded my-1" {% elif q.chose == q.a and q.a != q.answer %} class="border border-2 border-danger rounded my-1" {% endif %} {% if points != -1 and q.a == q.answer %} class="border border-2 border-info rounded my-1" {% endif %} >
+                <input type="radio" id="answer1_{{ q.id }}" name="{{ q.id }}" value="{{ q.a }}" {%
+                  if q.chose == q.a %} checked {% endif %} {% if q.chose != '' %} disabled
+                  {% endif %}/>
+                  <label for="answer1_{{ q.id }}" class="my-1">{{ q.a }}</label><br />
+              </div>
+              
+              <div {% if q.chose and q.b == q.answer %} class="border border-2 border-success rounded my-1" {% elif q.chose == q.b and q.b != q.answer %} class="border border-2 border-danger rounded my-1" {% endif %} {% if points != -1 and q.b == q.answer %} class="border border-2 border-info rounded my-1" {% endif %}>
+                <input type="radio" id="answer2_{{ q.id }}" name="{{ q.id }}" value="{{ q.b }}" {%
+                  if q.chose == q.b %} checked {% endif %} {% if q.chose != '' %} disabled
+                  {% endif %}/>
+                <label for="answer2_{{ q.id }}" class="my-1">{{ q.b }}</label><br />
+              </div>
+              
+              <div {% if q.chose and q.c == q.answer %} class="border border-2 border-success rounded my-1" {% elif q.chose == q.c and q.c != q.answer %} class="border border-2 border-danger rounded my-1" {% endif %} {% if points != -1 and q.c == q.answer %} class="border border-2 border-info rounded my-1" {% endif %} >
+                <input type="radio" id="answer3_{{ q.id }}" name="{{ q.id }}" value="{{ q.c }}" {%
+                  if q.chose == q.c %} checked {% endif %} {% if q.chose != '' %} disabled
+                  {% endif %}/>
+                <label for="answer3_{{ q.id }}" class="my-1">{{ q.c }}</label><br />
+              </div>
+              
+              <div {% if q.chose and q.d == q.answer %} class="border border-2 border-success rounded my-1" {% elif q.chose == q.d and q.d != q.answer %} class="border border-2 border-danger rounded my-1" {% endif %} {% if points != -1 and q.d == q.answer %} class="border border-2 border-info rounded my-1" {% endif %} >
+                <input type="radio" id="answer4_{{ q.id }}" name="{{ q.id }}" value="{{ q.d }}" {%
+                  if q.chose == q.d %} checked {% endif %} {% if q.chose != '' %} disabled
+                  {% endif %}/>
+                <label for="answer4_{{ q.id }}" class="my-1">{{ q.d }}</label><br />
+              </div>
+              
+            </div>
+            {% endfor %}
+          </div>
+          <div class="row justify-content-start mb-4">
+            <div class="col-9">
+              {% if points < 0 %}
+              <div class="d-flex justify-content-center">
+                <input type="hidden" name="name" value="{{ name }}" />
+                <input
+                type="submit"
+                id="submitButton"
+                value="Submit"
+                class="btn btn-primary"
+              />
+              </div>
+            {% endif %}
+            </div>
+          </div>
+        </div>
+        
+        
+
+        
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

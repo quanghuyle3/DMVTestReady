@@ -1,0 +1,11 @@
+﻿id,type,question,a,b,c,d,answer,chose
+0,image,417,Merging traffic from the right,Do Not Enter,Winding road,T-intersection,Merging traffic from the right,
+1,image,102,No Left Turn,Turn right at limit 25mph,Two way traffic,One-way road,No Left Turn,
+2,image,204,Keep in the right lane,T-intersection,Turn left if you are in the left lane,One-way road,Turn left if you are in the left lane,
+3,image,425,One-way road,Turn left if you are in the left lane,Keep going straight,"Stay in current lane, no paasing area","Stay in current lane, no paasing area",
+4,image,426,No Parking,"Slow down, dip area",Directional arrow,Two way traffic,Directional arrow,
+5,image,107,Crossroad,Yield Sign,Turn right at limit 25mph,Slipper when wet,Yield Sign,
+6,image,404,Turn right ahead,Yield ahead,Keep in the right lane,Do Not Enter,Turn right ahead,
+7,image,302,Traffic signal ahead,Shoulder is not available ahead,Turn left if you are in the left lane,"Construction zone, road closed ahead","Construction zone, road closed ahead",
+8,image,406,One-way road,Left curve ahead,Keep going straight,No Parking,Left curve ahead,
+9,image,201,Two way traffic,Stay in current lane,Keep in the right lane,T-intersection,Stay in current lane,
