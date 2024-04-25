@@ -1,110 +1,152 @@
-{% extends 'templateMain.html' %} 
+{% extends 'templateMain.html' %}
 {% block title %} Practice page {% endblock %}
 {% block body %}
-<div class="container">
+<div class="container mt-4">
   <div class="row">
-    <div class="col-9">
-      <form id="practiceForm" action="/take-practice" method="post">
-        <h2 id="questionTitle">Practice Questions:</h2>
-        <div id="questionContainer">
-  
-        </div>
-        
-        {% if points >= 0 %}
-        <h2>You chose correctly {{ points }} answers!</h2>
-        <a href="/take-practice?name={{ name }}">Retake this practice exam.</a> <br>
-        <a href="/practice">Practice a different one.</a>
-        {% else %}
+    <div class="col-md-9">
+      <form id="practiceForm" action="/take-practice" method="post" class="form-container">
+        <h2 id="questionTitle" class="text-primary">Practice Questions:</h2>
+        <div id="questionContainer" class="question-container"></div>
         <input type="hidden" name="name" value="{{ name }}">
-        <button type="button" id="nextButton">Next</button>
-        <input type="submit" id="submitButton" value="Submit" style="display:none;" />
-        {% endif %}
+        <input type="hidden" id="questions" name="questions" value="">
+        <div class="button-group mt-3">
+          <button type="button" id="nextButton" class="btn btn-primary">Next</button>
+          <input type="submit" id="submitButton" value="Submit" class="btn btn-success" style="display:none;">
+        </div>
       </form>
-    </div>
-    <div class="col-3 bg-success">
-      <div class="container position-fixed">
-
-      </div>
     </div>
   </div>
 </div>
 
+<style>
+  .form-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+.question-container * {
+    opacity: 1 !important; 
+    filter: none !important; 
+    background-color: transparent !important; 
+}
+
+  .question-container {
+    background: #ffffff;
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+  .button-group button, .button-group input[type="submit"] {
+    margin-right: 10px;
+  }
+  .timer-container {
+    position: sticky;
+    top: 20px;
+  }
+  .correct-answer {
+    border: 2px solid green;
+    padding: 3px;
+    border-radius: 5px;
+  }
+  .incorrect-answer {
+    border: 2px solid red;
+    padding: 3px;
+    border-radius: 5px;
+  }
+  
+</style>
+
 <script>
   let currentQuestionIndex = 0;
   let questions = {{ questions | tojson }};
-  
+  //Showing all questions only text based
   function displayQuestion() {
     if (currentQuestionIndex >= questions.length) {
-      // Next and Submit is hidden because next case is not implemented
       document.getElementById("nextButton").style.display = "none";
-      document.getElementById("submitButton").style.display = "none";
+      document.getElementById("submitButton").style.display = "block";
       return;
     }
     
     let question = questions[currentQuestionIndex];
     let questionHTML = `
       <p>${question.question}</p>
-      <input type="radio" id="answer1" name="answer" value="${question.a}" />
-      <label for="answer1">${question.a}</label><br />
-      <input type="radio" id="answer2" name="answer" value="${question.b}" />
-      <label for="answer2">${question.b}</label><br />
-      <input type="radio" id="answer3" name="answer" value="${question.c}" />
-      <label for="answer3">${question.c}</label><br />
-      <input type="radio" id="answer4" name="answer" value="${question.d}" />
-      <label for="answer4">${question.d}</label><br />
+      ${['a', 'b', 'c', 'd'].map(letter => `
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="answer" id="answer${letter}" value="${question[letter]}">
+          <label class="form-check-label" for="answer${letter}">
+            ${question[letter]}
+          </label>
+        </div>
+      `).join('')}
     `;
     document.getElementById("questionContainer").innerHTML = questionHTML;
     document.getElementById("questionTitle").innerText = `Question ${currentQuestionIndex + 1}`;
-  }
   
-  function highlightAnswers(correctAnswer) {
-    let userAnswer = document.querySelector('input[name="answer"]:checked');
-    if (userAnswer) {
-      userAnswer.nextElementSibling.style.backgroundColor = userAnswer.value === correctAnswer ? "green" : "red";
-      document.querySelectorAll('input[name="answer"]').forEach(radio => {
-        if (radio !== userAnswer) {
-          radio.disabled = true;
-          radio.nextElementSibling.style.backgroundColor = ""; // Background Color reset
-          if (radio.value === correctAnswer) {
-            radio.nextElementSibling.style.backgroundColor = "green";
-          }
-        }
-      });
-    }
-  }
-  
-  window.onload = function() {
-    displayQuestion();
-    
-    //Handles button clicks
-    function handleRadioButtonClick() {
-      let correctAnswer = questions[currentQuestionIndex].answer;
-      highlightAnswers(correctAnswer);
-    }
-
-     //Listens each clicks of Radio buttons
     document.querySelectorAll('input[type="radio"]').forEach(radio => {
       radio.addEventListener('click', handleRadioButtonClick);
     });
+  }
 
+  //Handles correct answer
+  function handleRadioButtonClick() {
+    let correctAnswer = questions[currentQuestionIndex].answer;
+    highlightAnswers(correctAnswer);
+  }
+
+  //highlights answers
+  function highlightAnswers(correctAnswer) {
+    let userAnswer = document.querySelector('input[name="answer"]:checked');
+    if (userAnswer) {
+      let isCorrect = userAnswer.value === correctAnswer;
+      document.querySelectorAll('input[name="answer"]').forEach(radio => {
+        let label = radio.nextElementSibling;
+        if (radio.value === correctAnswer) {
+          label.classList.add('correct-answer'); // Always mark the correct answer green
+        } else {
+          label.classList.remove('correct-answer');
+        }
+  
+        if (radio === userAnswer) {
+          if (isCorrect) {
+            label.classList.add('correct-answer');
+            questions[currentQuestionIndex].chose = "green";
+          } else {
+            label.classList.add('incorrect-answer'); // Mark incorrect choice red
+            questions[currentQuestionIndex].chose = "red";
+          }
+        }
+  
+        radio.disabled = true; // Disable all options after selection
+      });
+  
+      document.getElementById("questions").value = JSON.stringify(questions);
+    }
+  }
+  
+    //after loading finishes
+  window.onload = function() {
+    displayQuestion();
     document.getElementById("nextButton").onclick = function() {
-      // Checks if Radion button selected or not
       let selectedAnswer = document.querySelector('input[name="answer"]:checked');
       if (!selectedAnswer) {
         alert("Please choose an answer before moving to the next question.");
         return;
       }
-      
-      let correctAnswer = questions[currentQuestionIndex].answer;
-      highlightAnswers(correctAnswer);
+      highlightAnswers(questions[currentQuestionIndex].answer);
       currentQuestionIndex++;
-      displayQuestion();
-
-      // Reattach event listener for new questions
-      document.querySelectorAll('input[type="radio"]').forEach(radio => {
-        radio.addEventListener('click', handleRadioButtonClick);
-      });
+      if (currentQuestionIndex < questions.length) {
+        displayQuestion();
+      } else {
+        document.getElementById("nextButton").style.display = "none";
+        document.getElementById("submitButton").style.display = "block";
+      }
     };
+    document.getElementById("practiceForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      this.submit();
+    });
   };
 </script>
 
