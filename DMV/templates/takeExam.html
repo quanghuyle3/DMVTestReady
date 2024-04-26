@@ -1,36 +1,70 @@
-{% extends 'templateMain.html' %} 
+{% extends 'templateMain.html' %}
 {% block title %} Practice page {% endblock %}
 {% block body %}
-<div class="container">
+<div class="container mt-4">
   <div class="row">
-    <div class="col-9">
-      <form id="practiceForm" action="/take-practice" method="post">
-        <h2 id="questionTitle">Practice Questions:</h2>
-        <div id="questionContainer">
+    <div class="col-md-9">
+      <form id="practiceForm" action="/take-exam" method="post" class="form-container">
+        <h2 id="questionTitle" class="text-primary">Practice Questions:</h2>
+        <div id="questionContainer" class="question-container">
+          
         </div>
-        
-        {% if points >= 0 %}
-        <h2>You chose correctly {{ points }} answers!</h2>
-        <a href="/take-practice?name={{ name }}">Retake this practice exam.</a> <br>
-        <a href="/practice">Practice a different one.</a>
-        {% else %}
+        <input type="hidden" id="questions" name="questions" value="">
         <input type="hidden" name="name" value="{{ name }}">
-        <button type="button" id="nextButton">Next</button>
-        <input type="submit" id="submitButton" value="Submit" style="display:none;" />
-        {% endif %}
+        <div class="button-group mt-3">
+          <button type="button" id="nextButton" class="btn btn-primary">Next</button>
+          <input type="submit" id="submitButton" value="Submit" class="btn btn-success" style="display:none;">
+        </div>
       </form>
     </div>
-    <div class="col-3 bg-success">
-      <div class="container position-fixed">
+    <div class="col-md-3">
+      <div class="timer-container bg-success text-white p-3 rounded shadow-sm">
         <h5 id="timerDisplay">Time left: 20 seconds</h5>
-        <div id="notification"></div>
+        <div id="notification" class="alert alert-warning mt-2" style="display: none;"></div>
       </div>
     </div>
   </div>
 </div>
 
+
+
+
+<style>
+  .form-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  .question-container {
+    background: #ffffff;
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+  .button-group button, .button-group input[type="submit"] {
+    margin-right: 10px;
+  }
+  .timer-container {
+    position: sticky;
+    top: 20px;
+  }
+  .correct-answer {
+    border: 2px solid green;
+    padding: 3px;
+    border-radius: 5px;
+  }
+  .incorrect-answer {
+    border: 2px solid red;
+    padding: 3px;
+    border-radius: 5px;
+  }
+</style>
+
+
 <script>
-  
+
   let currentQuestionIndex = 0;
   let questions = {{ questions | tojson }};
   let timerInterval; // timer for Counting time during exam
@@ -38,34 +72,53 @@
 
   function displayQuestion() {
     if (currentQuestionIndex >= questions.length) {
-      // For now we just keep buttons hidden cuz we need to collect data first
       document.getElementById("nextButton").style.display = "none";
-      document.getElementById("submitButton").style.display = "none";
+      document.getElementById("submitButton").style.display = "block"; // Turn on submit button
       return;
     }
-
+  
     let question = questions[currentQuestionIndex];
-    let questionHTML = `
-      <p>${question.question}</p>
-      <input type="radio" id="answer1" name="answer" value="${question.a}" />
-      <label for="answer1">${question.a}</label><br />
-      <input type="radio" id="answer2" name="answer" value="${question.b}" />
-      <label for="answer2">${question.b}</label><br />
-      <input type="radio" id="answer3" name="answer" value="${question.c}" />
-      <label for="answer3">${question.c}</label><br />
-      <input type="radio" id="answer4" name="answer" value="${question.d}" />
-      <label for="answer4">${question.d}</label><br />
-    `;
+    let questionHTML = ''; // Initialize the HTML content variable
+  
+    if (question.type === 'normal') {
+      // Display text questions 
+      questionHTML = `
+        <p>${question.question}</p>
+        <input type="radio" id="answer1" name="answer" value="${question.a}" />
+        <label for="answer1">${question.a}</label><br />
+        <input type="radio" id="answer2" name="answer" value="${question.b}" />
+        <label for="answer2">${question.b}</label><br />
+        <input type="radio" id="answer3" name="answer" value="${question.c}" />
+        <label for="answer3">${question.c}</label><br />
+        <input type="radio" id="answer4" name="answer" value="${question.d}" />
+        <label for="answer4">${question.d}</label><br />
+      `;
+    } else {
+      // Display image questions
+      questionHTML = `
+        <div class="d-flex justify-content-center">
+          <img src="/static/signs/${question.question}.png" alt="Question Image" style="max-width: 350px; margin-bottom: 20px;">
+        </div>
+        <input type="radio" id="answer1" name="answer" value="${question.a}" />
+        <label for="answer1">${question.a}</label><br />
+        <input type="radio" id="answer2" name="answer" value="${question.b}" />
+        <label for="answer2">${question.b}</label><br />
+        <input type="radio" id="answer3" name="answer" value="${question.c}" />
+        <label for="answer3">${question.c}</label><br />
+        <input type="radio" id="answer4" name="answer" value="${question.d}" />
+        <label for="answer4">${question.d}</label><br />
+      `;
+    }
+  
     document.getElementById("questionContainer").innerHTML = questionHTML;
     document.getElementById("questionTitle").innerText = `Question ${currentQuestionIndex + 1}`;
-
-    // Timer starts wroking
     startTimer();
-
+  
     document.querySelectorAll('input[type="radio"]').forEach(radio => {
       radio.addEventListener('click', handleRadioButtonClick);
     });
   }
+  
 
   //Timer of Exam
   function startTimer() {
@@ -78,27 +131,37 @@
         clearInterval(timerInterval);
         // Once time is finished move to next question
         proceedToNextQuestion();
-        document.getElementById("notification").innerHTML = "Time has passed and you didnt choose any answer.";
+        document.getElementById("notification").innerHTML = "Time has passed and you didn't choose any answer.";
       }
     }, 1000);
   }
 
-  //Depending on correctness of answer it will be colored red or green
+  // Depending on correctness of answer it will be colored red or green
   function highlightAnswers(correctAnswer) {
     let userAnswer = document.querySelector('input[name="answer"]:checked');
     if (userAnswer) {
-      userAnswer.nextElementSibling.style.backgroundColor = userAnswer.value === correctAnswer ? "green" : "red";
+      let isCorrect = userAnswer.value === correctAnswer;
+      let label = userAnswer.nextElementSibling;
+      if (isCorrect) {
+        label.classList.add('correct-answer');
+        questions[currentQuestionIndex].chose = "green";
+      } else {
+        label.classList.add('incorrect-answer');
+        questions[currentQuestionIndex].chose = "red";
+      }
+      document.getElementById("questions").value = JSON.stringify(questions);
       document.querySelectorAll('input[name="answer"]').forEach(radio => {
         if (radio !== userAnswer) {
           radio.disabled = true; // Once answer is selected choices will be disabled
           if (radio.value === correctAnswer) {
-            radio.nextElementSibling.style.backgroundColor = "green"; // Correct answer is highligheted with green
+            radio.nextElementSibling.classList.add('correct-answer');
           }
         }
       });
-      clearInterval(timerInterval); // Timer is destroyed once answer is selected
+      clearInterval(timerInterval); // Timer is stopped once answer is selected
     }
   }
+  
 
   // Once time finishes move to next question
   function proceedToNextQuestion() {
@@ -113,9 +176,15 @@
     highlightAnswers(correctAnswer);
   }
 
+  //after loading finishes
   window.onload = function () {
     displayQuestion();
     document.getElementById("nextButton").onclick = proceedToNextQuestion;
+    document.getElementById("practiceForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      this.submit();
+    });
   };
 </script>
+
 {% endblock %}

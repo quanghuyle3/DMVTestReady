@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page</title>
+</head>
+<body>
+    <h1>Welcome to the Test Page</h1>
+    <p>This is just a test page to demonstrate a simple HTML form.</p>
+    <form action="/tester" method="post">
+        <label for="result">Result:</label><br>
+        <input type="hidden" id="result" name="result" readonly><br><br>
+        <input type="submit" value="Submit">
+        <input type="hidden" id="people" name="people" value="">
+    </form>
+</body>
+<script>
+    let x = 10
+    let y = 20
+    let sum = x + y;
+    console.log(sum)
+    document.getElementById("result").value = sum;
+
+    let people = [];
+
+    for (let i = 1; i <= 5; i++) {
+        let name = "Person " + i;
+        let age = 20 + i; // Just an example, you can assign any age here
+        
+        let person = {
+            "Name": name,
+            "Age": age
+        };
+    
+        people.push(person);
+    }
+    console.log(people);
+    document.getElementById("people").value = JSON.stringify(people);
+
+
+</script>
+</html>

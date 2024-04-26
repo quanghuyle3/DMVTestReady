@@ -27,7 +27,7 @@ class Exam_scores(db.Model):
     score = db.Column(db.Integer) 
     timestamp = db.Column(db.DateTime, default=datetime.now)
     
-    
+
 # Model for question
 class Question:
     def __init__(self, id, type, question, a, b, c, d, answer, chose=''):
