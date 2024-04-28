@@ -1,23 +1,58 @@
 {% extends 'templateMain.html' %} {% block title %} Practice page {% endblock %}
 {% block body %}
-<div class="container">
-  <div class="row">
-    <div class="col-12">
-      <h1>Exam</h1>
-      <hr />
-      <h3>On-site Version</h3>
-      <!-- <a href="/take-exam-on-site?name=practice-1">Practice Exam #1</a> <br /> -->
-      <p>
-        This exam is designed for people who plan to take the DMV driver's
-        license written test at DMV. It is a comprehensive exam with random
-        questions taken from our bank. It will have a total of 45 questions
-        including 35 theory questions and 10 road-sign questions. If you can
-        answer correctly 38 questions, you will pass the exam. Good luck!
+<div class="container-fluid mt-3 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-10">
+      <p class="fw-bold" style="font-size: 3vw; line-height: 1.2">
+        WELCOME TO EXAM SIMULATION!
       </p>
-      <a href="/take-exam-on-site">On-site exam</a> <br />
-      <!-- <a href="/practice3">Practice Exam #3</a> <br /> -->
-      <h3 class="mt-3">Online Version</h3>
-      <a href="/take-exam?name=practice-1">Online Exam</a> <br />
+      <hr />
+      <div class="row justify-content-center">
+        <div class="col-6">
+          <div class="card border-secondary">
+            <img
+              src="/static/landing/onsite.png"
+              class="card-img-top"
+              alt="..."
+            />
+            <div class="d-flex justify-content-center mt-2 mb-0">
+              <a
+                href="/take-exam-on-site"
+                class="fw-bold"
+                style="font-size: 2vw"
+                >LAUNCH ON-SITE VERSION</a
+              >
+            </div>
+            <div class="card-body">
+              <p class="card-text text-center">
+                This will help you prepare before taking the exam at DMV office.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="card border-secondary">
+            <img
+              src="/static/landing/online.png"
+              class="card-img-top"
+              alt="..."
+            />
+            <div class="d-flex justify-content-center mt-2 mb-0">
+              <a
+                href="/take-exam?name=practice-1"
+                class="fw-bold"
+                style="font-size: 2vw"
+                >LAUNCH ONLINE VERSION</a
+              >
+            </div>
+            <div class="card-body">
+              <p class="card-text text-center">
+                This will help you prepare before taking the DMV exam online.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
