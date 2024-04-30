@@ -252,7 +252,8 @@ def score_history():
         #checking if practice_scores is empty or not
         if practice_scores:
             #creating plot from data
-            sns.catplot(data=practice_data, x='Practice Date', y='Practice Score', kind='point')
+            scatter = sns.catplot(data=practice_data, kind = "swarm", x='Practice Date', y='Practice Score', hue='Practice Date', palette='viridis')
+            scatter.set(ylim=(-2, 22))
         else:
             #creating plot from dummy data
             sns.catplot(data=practice_data, x='Practice Date', y='Practice Score', kind='point', color='b', alpha=0)
@@ -288,7 +289,8 @@ def score_history():
         #checking if exam_scores is empty or not
         if exam_scores:
             #creating plot from data
-            sns.catplot(data=exam_data, x='Exam Date', y='Exam Score', kind='point')
+            scatter = sns.catplot(data=exam_data, kind = "swarm", x='Exam Date', y='Exam Score', hue='Exam Date', palette='viridis')
+            scatter.set(ylim=(-2, 22))
         else:
             #creating plot from dummy data
             sns.catplot(data=exam_data, x='Exam Date', y='Exam Score', kind='point', color='b', alpha=0)
