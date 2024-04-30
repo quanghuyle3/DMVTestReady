@@ -31,7 +31,7 @@
         >
           <a href="/">
             <img
-              src="/static/logo3.png"
+              src="/static/logo2.png"
               alt="Logo"
               class="me-5"
               style="width: 100px"
@@ -40,29 +40,36 @@
           <ul
             class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
           >
-            {%if user.is_authenticated == False%}
+            {%if user.is_authenticated == False%} {%else%}
             <li>
-              <a href="/" class="nav-link px-2" style="color: #ad4420">HOME</a>
+              <a
+                href="/"
+                class="nav-link px-3 fw-bold"
+                style="color: #ad4420; font-size: 1.4vw"
+                >HOME</a
+              >
             </li>
-            {%else%}
             <li>
-              <a href="/" class="nav-link px-2" style="color: #ad4420">HOME</a>
-            </li>
-            <li>
-              <a href="/practice" class="nav-link px-2" style="color: #ad4420"
+              <a
+                href="/practice"
+                class="nav-link px-3 fw-bold"
+                style="color: #ad4420; font-size: 1.4vw"
                 >PRACTICE</a
               >
             </li>
             <li>
-              <a href="/exam" class="nav-link px-2" style="color: #ad4420"
+              <a
+                href="/exam"
+                class="nav-link px-3 fw-bold"
+                style="color: #ad4420; font-size: 1.4vw"
                 >EXAM</a
               >
             </li>
             <li>
               <a
                 href="/score-history"
-                class="nav-link px-2"
-                style="color: #ad4420"
+                class="nav-link px-3 fw-bold"
+                style="color: #ad4420; font-size: 1.4vw"
                 >SCORE HISTORY</a
               >
             </li>
@@ -71,8 +78,26 @@
 
           <div class="text-end">
             {%if user.is_authenticated == False%}
-            <a href="/registration" class="btn btn-primary me-2"> SIGN UP </a>
-            <a href="/login" class="btn btn-success">LOGIN</a>
+            <ul
+              class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
+            >
+              <li>
+                <a
+                  href="/registration"
+                  class="nav-link px-3 fw-bold"
+                  style="color: #ad4420; font-size: 1.4vw"
+                  >SIGN UP</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/login"
+                  class="nav-link px-3 fw-bold"
+                  style="color: #ad4420; font-size: 1.4vw"
+                  >LOGIN</a
+                >
+              </li>
+            </ul>
             {%endif%}
           </div>
           {%if user.is_authenticated%}

@@ -24,7 +24,6 @@ def exam():
     return render_template("exam.html",user = current_user)
 
 @views.route('/')
-# @login_required
 def index():
     return render_template("index.html", user = current_user)
 
@@ -202,19 +201,13 @@ def takeExamOnSite():
     
     # Taking exam
     if request.method == "GET":
-        # get the correct exam name 
-        # practiceName = request.args.get("name")
-        # load questions from files and converts to objects
-        # questions = load_corresponding_practice(practiceName)
+        # load the questions for exam 
         questions = load_random_exam_questions()
-        # return render_template("takeExamOnSite.html", user=current_user, questions=questions, name=practiceName, points=-1)
+
         return render_template("takeExamOnSite.html", user=current_user, questions=questions, name="Exam", points=-1)
    
     else:
-        # get the correct practice name 
-        practiceName = request.form["name"]
-        # load questions from files and converts to objects
-        # questions = load_corresponding_practice(practiceName)
+        # load the answers of the exam
         questions = load_dynamic_exam_answers()
 
         # Count correct answers and set chosen answer for each question
@@ -259,7 +252,8 @@ def score_history():
         #checking if practice_scores is empty or not
         if practice_scores:
             #creating plot from data
-            sns.catplot(data=practice_data, x='Practice Date', y='Practice Score', kind='point')
+            scatter = sns.catplot(data=practice_data, kind = "swarm", x='Practice Date', y='Practice Score', hue='Practice Date', palette='viridis')
+            scatter.set(ylim=(-2, 22))
         else:
             #creating plot from dummy data
             sns.catplot(data=practice_data, x='Practice Date', y='Practice Score', kind='point', color='b', alpha=0)
@@ -295,7 +289,8 @@ def score_history():
         #checking if exam_scores is empty or not
         if exam_scores:
             #creating plot from data
-            sns.catplot(data=exam_data, x='Exam Date', y='Exam Score', kind='point')
+            scatter = sns.catplot(data=exam_data, kind = "swarm", x='Exam Date', y='Exam Score', hue='Exam Date', palette='viridis')
+            scatter.set(ylim=(-2, 22))
         else:
             #creating plot from dummy data
             sns.catplot(data=exam_data, x='Exam Date', y='Exam Score', kind='point', color='b', alpha=0)
@@ -372,10 +367,10 @@ def load_random_exam_questions():
     questions = []
 
     # random 35 theory questions
-    theory_questions = df_theory.sample(n=4, replace=False)
+    theory_questions = df_theory.sample(n=35, replace=False)
 
     # random 10 signs questions
-    signs_questions = df_signs.sample(n=3, replace=False)
+    signs_questions = df_signs.sample(n=10, replace=False)
 
     # combine 2 set of questions
     set_questions = pd.concat([theory_questions, signs_questions])
