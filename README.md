@@ -16,7 +16,7 @@ https://my-cloud-run-service-ya575o6hjq-uw.a.run.app/
 
 - conda create -n dmvtestready python=3.8
 - conda activate dmvtestready
-- or you alternatively can use
+  - or you alternatively can use
 - source activate dmvtestready
 
 
