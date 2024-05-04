@@ -1,40 +1,51 @@
-{% extends 'templateMain.html' %}
-{% block title %} Practice page {% endblock %}
+{% extends 'templateMain.html' %} {% block title %} Practice page {% endblock %}
 {% block body %}
 <div class="container mt-4">
   <div class="row">
     <div class="col-md-9">
-      <form id="practiceForm" action="/take-exam" method="post" class="form-container">
+      <form
+        id="practiceForm"
+        action="/take-exam"
+        method="post"
+        class="form-container"
+      >
         <h2 id="questionTitle" class="text-primary">Practice Questions:</h2>
-        <div id="questionContainer" class="question-container">
-          
-        </div>
-        <input type="hidden" id="questions" name="questions" value="">
-        <input type="hidden" name="name" value="{{ name }}">
+        <div id="questionContainer" class="question-container"></div>
+        <input type="hidden" id="questions" name="questions" value="" />
+        <input type="hidden" name="name" value="{{ name }}" />
         <div class="button-group mt-3">
-          <button type="button" id="nextButton" class="btn btn-primary">Next</button>
-          <input type="submit" id="submitButton" value="Submit" class="btn btn-success" style="display:none;">
+          <button type="button" id="nextButton" class="btn btn-primary">
+            Next
+          </button>
+          <input
+            type="submit"
+            id="submitButton"
+            value="Submit"
+            class="btn btn-success"
+            style="display: none"
+          />
         </div>
       </form>
     </div>
     <div class="col-md-3">
       <div class="timer-container bg-success text-white p-3 rounded shadow-sm">
         <h5 id="timerDisplay">Time left: 20 seconds</h5>
-        <div id="notification" class="alert alert-warning mt-2" style="display: none;"></div>
+        <div
+          id="notification"
+          class="alert alert-warning mt-2"
+          style="display: none"
+        ></div>
       </div>
     </div>
   </div>
 </div>
-
-
-
 
 <style>
   .form-container {
     background: #f8f9fa;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   .question-container {
     background: #ffffff;
@@ -43,7 +54,8 @@
     border-radius: 5px;
     margin-bottom: 20px;
   }
-  .button-group button, .button-group input[type="submit"] {
+  .button-group button,
+  .button-group input[type="submit"] {
     margin-right: 10px;
   }
   .timer-container {
@@ -62,13 +74,12 @@
   }
 </style>
 
-
 <script>
 
   let currentQuestionIndex = 0;
   let questions = {{ questions | tojson }};
   let timerInterval; // timer for Counting time during exam
-  let timerSeconds = 20; // timer controller
+  let timerSeconds = 420; // timer controller
 
   function displayQuestion() {
     if (currentQuestionIndex >= questions.length) {
@@ -76,12 +87,12 @@
       document.getElementById("submitButton").style.display = "block"; // Turn on submit button
       return;
     }
-  
+
     let question = questions[currentQuestionIndex];
     let questionHTML = ''; // Initialize the HTML content variable
-  
+
     if (question.type === 'normal') {
-      // Display text questions 
+      // Display text questions
       questionHTML = `
         <p>${question.question}</p>
         <input type="radio" id="answer1" name="answer" value="${question.a}" />
@@ -109,22 +120,22 @@
         <label for="answer4">${question.d}</label><br />
       `;
     }
-  
+
     document.getElementById("questionContainer").innerHTML = questionHTML;
     document.getElementById("questionTitle").innerText = `Question ${currentQuestionIndex + 1}`;
     startTimer();
-  
+
     document.querySelectorAll('input[type="radio"]').forEach(radio => {
       radio.addEventListener('click', handleRadioButtonClick);
     });
   }
-  
+
 
   //Timer of Exam
   function startTimer() {
     let secondsLeft = timerSeconds;
     timerInterval = setInterval(() => {
-      document.getElementById("timerDisplay").innerText = `Time left: ${secondsLeft} seconds`;
+      document.getElementById("timerDisplay").innerText = `Time left: ${Math.floor(secondsLeft / 60)} minutes and ${secondsLeft % 60} seconds`;
       secondsLeft--;
 
       if (secondsLeft < 0) {
@@ -161,7 +172,7 @@
       clearInterval(timerInterval); // Timer is stopped once answer is selected
     }
   }
-  
+
 
   // Once time finishes move to next question
   function proceedToNextQuestion() {
