@@ -23,12 +23,12 @@ https://my-cloud-run-service-ya575o6hjq-uw.a.run.app/
 ### Install flask and other dependencies
 
 - dependencies:
-  pip3 install flask
-  pip3 install flask-login
-  pip3 install flask-sqlachemy
-  pip3 install pandas
-  pip3 install matplotlib
-  pip3 install seaborn
+  - pip3 install flask
+  - pip3 install flask-login
+  - pip3 install flask-sqlachemy
+  - pip3 install pandas
+  - pip3 install matplotlib
+  - pip3 install seaborn
 
 ### Run the application
 
