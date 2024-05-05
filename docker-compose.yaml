@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  web:
+    platform: linux/amd64
+    build:
+      context: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+    # Define custom image name and tag
+    image: us-west1-docker.pkg.dev/profound-nuance-421919/cs122-project/sjsu:latest
