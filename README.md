@@ -2,27 +2,34 @@
 
 A web application that allows users to practice Driver's License knowledge test online.
 
-https://my-cloud-run-service-ya575o6hjq-uw.a.run.app/
-
-### Virtual Environment: Conda
-
-### Dependencies:
+## Programming & framework:
 
 - Python 3.8
 - Flask
+
+## Database:
+
 - sqlite3
 
-### Setup the virtual environment for project
+## Access our web application online:
+
+https://my-cloud-run-service-ya575o6hjq-uw.a.run.app/
+
+## Run our web application locally
+
+### Setup the virtual environment
+
+#### Using conda (Preferable)
 
 - conda create -n dmvtestready python=3.8
 - conda activate dmvtestready
-  - or you alternatively can use
-- source activate dmvtestready
 
+#### Using source
+
+- source activate dmvtestready
 
 ### Install flask and other dependencies
 
-- dependencies:
 ```
   pip3 install flask
   pip3 install flask-login
@@ -36,7 +43,8 @@ https://my-cloud-run-service-ya575o6hjq-uw.a.run.app/
 
 - python3 app.py
 
-### File Structure
+## File Structure
+
 ```
 .
 ├── DMV
