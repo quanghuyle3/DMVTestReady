@@ -5,8 +5,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 
 
+#creating blueprint for auth
 auth = Blueprint("auth",__name__)
 
+# Route to the login page
 @auth.route('/login', methods =['GET','POST'])
 def login():
     #If POST request received it takes all data from form and checks against data in db
@@ -28,7 +30,7 @@ def login():
         
     return render_template("login.html", user = current_user)
 
-
+# Route to the registration page
 @auth.route('/registration', methods =['GET','POST'])
 def registration():
     #If POST request received it takes all data from form and sets to user and saves in db
@@ -60,6 +62,7 @@ def registration():
             return redirect(url_for('views.practice'))
     return render_template("registration.html", user = current_user)
 
+# Route to the loging out
 @auth.route('/logout')
 @login_required
 def logout():

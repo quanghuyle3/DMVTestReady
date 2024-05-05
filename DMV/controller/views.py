@@ -10,7 +10,7 @@ import matplotlib
 import seaborn as sns
 from flask import current_app, after_this_request
 
-
+#creating blueprint for views
 views = Blueprint("views",__name__)
 
 # Route to the practice page
@@ -434,6 +434,7 @@ def create_question_from_row(row):
         chose=row.get('chose', '')
     )
 
+#collecting questions from practices
 def collect_questions(file_list, count, directory):
     questions = []
     # Collecting questions until reaching count
