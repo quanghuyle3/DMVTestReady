@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import matplotlib
 import seaborn as sns
 from flask import current_app, after_this_request
+import json
+from flask import flash
 
 #creating blueprint for views
 views = Blueprint("views",__name__)
@@ -52,20 +54,9 @@ def update_profile():
     return redirect(url_for('views.profile'))
 
 
-import json
 
-from flask import flash
 
-@views.route('/tester', methods=["POST", "GET"])
-def test():
-    if request.method == "GET":
-        return render_template("test.html", user=current_user)
-    else:
-        result = request.form.get("result")
-        people_json = request.form.get("people")  # Get the JSON string from the form
-        people = json.loads(people_json)  # Parse the JSON string to get the list of people
-        print(people)
-        return render_template("tester1.html", user=current_user, result = result)
+
 
 # Route to the sequential practice page
 @views.route('/take-practice', methods=["POST", "GET"])
@@ -251,7 +242,7 @@ def score_history():
             scatter.set(ylim=(-2, 22))
         else:
             #creating plot from dummy data
-            sns.catplot(data=practice_data, x='Practice Date', y='Practice Score', kind='point', color='b', alpha=0)
+            sns.catplot(data=practice_data, x='Practice Date', y='Practice Score', kind='swarm', color='b', alpha=0)
 
 
         # Ensure the 'static' directory exists
@@ -285,10 +276,10 @@ def score_history():
         if exam_scores:
             #creating plot from data
             scatter = sns.catplot(data=exam_data, kind = "swarm", x='Exam Date', y='Exam Score', hue='Exam Date', palette='viridis')
-            scatter.set(ylim=(-2, 22))
+            scatter.set(ylim=(-2, 47))
         else:
             #creating plot from dummy data
-            sns.catplot(data=exam_data, x='Exam Date', y='Exam Score', kind='point', color='b', alpha=0)
+            sns.catplot(data=exam_data, x='Exam Date', y='Exam Score', kind='swarm', color='b', alpha=0)
         
         # Save the exam plot as an image file with full path
         exam_plot_path = os.path.join(static_dir, 'exam_plot.png')
@@ -410,7 +401,7 @@ def randomize_questions():
 
     # Collecting 10 questions from each collections
     questions_from_set1 = collect_questions(practice_files1, 10, directory)
-    questions_from_set2 = collect_questions(practice_files2, 10, directory)
+    questions_from_set2 = collect_questions(practice_files2, 35, directory)
 
     # Combining both collections
     all_questions = questions_from_set1 + questions_from_set2
