@@ -13,16 +13,19 @@ from flask import current_app, after_this_request
 
 views = Blueprint("views",__name__)
 
+# Route to the practice page
 @views.route('/practice')
 @login_required
 def practice():
     return render_template("practice.html",user = current_user)
 
+# Route to the exam page
 @views.route('/exam')
 @login_required
 def exam():
     return render_template("exam.html",user = current_user)
 
+# Route to the index page
 @views.route('/')
 def index():
     return render_template("index.html", user = current_user)
@@ -64,9 +67,7 @@ def test():
         print(people)
         return render_template("tester1.html", user=current_user, result = result)
 
-
-
-
+# Route to the sequential practice page
 @views.route('/take-practice', methods=["POST", "GET"])
 @login_required
 def takePractice():
@@ -109,12 +110,7 @@ def takePractice():
         #redirecting to history  
         return redirect(url_for('views.score_history'))
 
-
-
-
-
-
-
+# Route to the online exam version webpage
 @views.route('/take-exam', methods=["POST", "GET"])
 @login_required
 def takeExam():
@@ -163,7 +159,7 @@ def takeExam():
         return redirect(url_for('views.score_history'))
 
 
-
+# Route to the simultaneous practice page
 @views.route('/take-practice-all-questions', methods=["POST", "GET"])
 @login_required
 def takePracticeAllQuestions():
@@ -190,11 +186,12 @@ def takePracticeAllQuestions():
                 count += 1
             questions[i].chose = request.form.get(str(i))   # save the answer that user chose
         
-        # Insert new score to history
+        # Insert new score entry to database
         insert_score(count, practiceName)
 
         return render_template("takePracticeAllQuestions.html", user=current_user, questions=questions, name=practiceName, points=count) 
 
+# Route to the on-site exam version webpage
 @views.route('/take-exam-on-site', methods=["POST", "GET"])
 @login_required
 def takeExamOnSite():
@@ -217,12 +214,12 @@ def takeExamOnSite():
                 count += 1
             questions[i].chose = request.form.get(str(i))   # save the answer that user chose
         
-        # Insert new score to history
+        # Insert new score entry to database
         insert_score(count, 'exam-score', 'exam')
 
         return render_template("takeExamOnSite.html", user=current_user, questions=questions, name="Exam", points=count)
     
-
+# Retrieve user's score history from database and return to view
 @views.route('/score-history')
 @login_required
 def score_history():
@@ -230,8 +227,6 @@ def score_history():
     exam_scores = current_user.exam_scores
     has_history = 1 if practice_scores or exam_scores else -1
     
-
-
     @after_this_request
     def add_seaborn_plot(response):
         # Create Seaborn plot for practice scores
@@ -309,12 +304,6 @@ def score_history():
     
     return render_template("scoreHistory.html", user=current_user, practice_scores=practice_scores, exam_scores=exam_scores, has_history = has_history)
 
-
-
-
-
-
-
 # This function will insert either practice or exam score
 # name: practice name OR exam name
 def insert_score(score, name, type='practice'):
@@ -355,7 +344,7 @@ def load_corresponding_practice(name):
 
     return questions 
 
-
+# This function will randomly collect and return list of questions from our question bank
 def load_random_exam_questions():
     theoryPath = "./DMV/resources/exam-theory-bank.csv"
     signsPath = "./DMV/resources/exam-signs-bank.csv"
@@ -392,6 +381,7 @@ def load_random_exam_questions():
 
     return questions 
 
+# Load the questions and answers that are previously randomized from the function above
 def load_dynamic_exam_answers():
     answerPath = "./DMV/resources/dynamic-exam-answers.csv"
 
@@ -407,11 +397,9 @@ def load_dynamic_exam_answers():
 
     return questions 
     
-
-
 import random
 
-
+# Randomize questions for online exam version
 def randomize_questions():
     directory = "./DMV/resources/"
     # Collection of files of signs questions
